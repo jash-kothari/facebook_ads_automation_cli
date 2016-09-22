@@ -13,6 +13,7 @@ import psycopg2.extras
 import image_hash
 import sys
 import urlparse
+import time
 
 
 def create_carousel_ad(caption,adset_id,ad_name,design_list,account_id,land_on_design,url,campaign_tag):
@@ -53,7 +54,7 @@ def create_carousel_ad(caption,adset_id,ad_name,design_list,account_id,land_on_d
 			product1[AdCreativeLinkDataChildAttachment.Field.name] = category_name['name']
 			product1[AdCreativeLinkDataChildAttachment.Field.description] = 'Discount '+str(row['discount_percent'])+'%'
 			product1[AdCreativeLinkDataChildAttachment.Field.image_hash] = image_hash.get_image_hash(image_link,rows[1],account_id)
-			sleep(0.5)
+			time.sleep(0.5)
 			simple_list.append(product1)
 
 		link = AdCreativeLinkData()
@@ -97,5 +98,5 @@ def create_carousel_ad(caption,adset_id,ad_name,design_list,account_id,land_on_d
 	finally:
 		if conn:
 			conn.close()
-	sleep(60)
+	time.sleep(60)
 	return True

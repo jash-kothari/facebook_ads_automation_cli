@@ -4,6 +4,8 @@ from facebookads.adobjects.targeting import Targeting
 from facebookads import exceptions
 import header
 import json
+import sys
+import time
 
 def create_adset(country_list,interest_list,age_min,age_max,adset_name,campaign_id,daily_budget,bid_amount,start_time,end_time):
 	try:
@@ -33,5 +35,5 @@ def create_adset(country_list,interest_list,age_min,age_max,adset_name,campaign_
 	except exceptions.FacebookError, e:
 		print 'Error %s' % e
 		return None
-	sleep(15)
+	time.sleep(15)
 	return adset[Adset.Field.id]
