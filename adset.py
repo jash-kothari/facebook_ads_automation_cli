@@ -1,14 +1,18 @@
-from facebookads.adobjects.adset import AdSet
 from facebookads.adobjects.targetingsearch import TargetingSearch
 from facebookads.adobjects.targeting import Targeting
+from facebookads.adobjects.adset import AdSet
 from facebookads import exceptions
+from datetime import date
+from time import sleep
+import logging
 import header
 import json
 import sys
-import time
 
 def create_adset(country_list,interest_list,age_min,age_max,adset_name,campaign_id,daily_budget,bid_amount,start_time,end_time):
 	try:
+		FORMAT = '%(asctime)-15s %(message)s %(pathname)s'
+		logging.basicConfig(filename='%s-facebook-automated.log' % date.today(),format=FORMAT, level=logging.DEBUG)
 		targeting = {
 			Targeting.Field.geo_locations: {
 				Targeting.Field.countries: country_list,
@@ -32,8 +36,12 @@ def create_adset(country_list,interest_list,age_min,age_max,adset_name,campaign_
 		adset.remote_create(params={
 			'status': AdSet.Status.paused,
 		})
+		logging.info(adset)
+
 	except exceptions.FacebookError, e:
 		print 'Error %s' % e
+		logging.error('Error %s' % e)
 		return None
-	time.sleep(15)
-	return adset[Adset.Field.id]
+
+	sleep(15)
+	return adset[AdSet.Field.id]
