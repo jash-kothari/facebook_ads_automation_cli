@@ -15,7 +15,6 @@ def create_creative():
 	try:
 		con = psycopg2.connect(database=header.database, user=header.user, password=header.password,host=header.host,port=header.port)
 		cur = con.cursor()
-		print cur.fetchone()
 		for i in xrange(times):
 			design_id=raw_input("Please enter design id.\n")
 			cur.execute('SELECT id,title,price from designs where id='+str(design_id))
