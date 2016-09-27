@@ -10,3 +10,11 @@ def get_image_hash(url,name):
 	os.remove(name)
 	# Output image Hash
 	return image[AdImage.Field.hash]
+
+def get_image_link(name,image_id):
+	image_link=""
+	extensions=['jpg','tif','gif','bmp','png']
+	for extension in extensions:
+		if extension in name:
+			image_link = header.base_url+str(image_id)+'/'+name.replace('.'+extension,'') + header.size+'.'+extension 
+	return image_link

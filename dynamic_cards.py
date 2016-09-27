@@ -13,7 +13,7 @@ def create_creative():
 	simple_list=[]
 	times = int(raw_input("Please enter the number of cards for carousel ads.\n"))
 	try:
-		con = psycopg2.connect(database=header.database, user=header.user, password=header.password,host=header.host,port=header.port)
+		con = header.create_connection()
 		cur = con.cursor()
 		for i in xrange(times):
 			design_id=raw_input("Please enter design id.\n")
@@ -21,18 +21,7 @@ def create_creative():
 			row=cur.fetchone()
 			cur.execute('SELECT id,photo_file_name FROM images where design_id = '+str(design_id))
 			rows=cur.fetchone()
-			image_link=""
-			if 'jpg' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.jpg','')+'_large.jpg'
-			elif 'tif' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.tif','')+'_large.tif'
-			elif 'gif' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.gif','')+'_large.gif'
-			elif 'bmp' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.bmp','')+'_large.bmp'
-			elif 'png' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.png','')+'_large.png'
-
+			image_link=image_hash.get_image_link()
 			product1 = AdCreativeLinkDataChildAttachment()
 			product1[AdCreativeLinkDataChildAttachment.Field.link] = 'www.mirraw.com/d/'+str(row[0])
 			product1[AdCreativeLinkDataChildAttachment.Field.name] = str(row[1])
