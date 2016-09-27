@@ -4,18 +4,21 @@ from facebookads.adobjects.adcreativeobjectstoryspec import AdCreativeObjectStor
 from facebookads.adobjects.adcreativelinkdatachildattachment import AdCreativeLinkDataChildAttachment
 import header
 import json
-import psycopg2
 import image_hash
 import sys
+import urlparse
+import psycopg2
+import psycopg2.extras
 
 def create_creative():
 	con = None
 	simple_list=[]
 	times = int(raw_input("Please enter the number of cards for carousel ads.\n"))
 	try:
-		con = psycopg2.connect(database=header.database, user=header.user, password=header.password,host=header.host,port=header.port)
-		cur = con.cursor()
-		print cur.fetchone()
+		urlparse.uses_netloc.append("postgres")
+		database_url = urlparse.urlparse(header.database_url)
+		conn = psycopg2.connect( database=database_url.path[1:], user=database_url.username, password=database_url.password, host=database_url.hostname, port=database_url.port )
+		cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		for i in xrange(times):
 			design_id=raw_input("Please enter design id.\n")
 			cur.execute('SELECT id,title,price from designs where id='+str(design_id))
@@ -23,22 +26,22 @@ def create_creative():
 			cur.execute('SELECT id,photo_file_name FROM images where design_id = '+str(design_id))
 			rows=cur.fetchone()
 			image_link=""
-			if 'jpg' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.jpg','')+'_large.jpg'
-			elif 'tif' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.tif','')+'_large.tif'
-			elif 'gif' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.gif','')+'_large.gif'
-			elif 'bmp' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.bmp','')+'_large.bmp'
-			elif 'png' in rows[1]:
-				image_link = 'https://assets1.mirraw.com/images/'+str(rows[0])+'/'+rows[1].replace('.png','')+'_large.png'
+			if 'jpg' in rows['photo_file_name']:
+				image_link = 'https://assets1.mirraw.com/images/'+str(rows['id'])+'/'+rows['photo_file_name'].replace('.jpg','')+'_large.jpg'
+			elif 'tif' in rows['photo_file_name']:
+				image_link = 'https://assets1.mirraw.com/images/'+str(rows['id'])+'/'+rows['photo_file_name'].replace('.tif','')+'_large.tif'
+			elif 'gif' in rows['photo_file_name']:
+				image_link = 'https://assets1.mirraw.com/images/'+str(rows['id'])+'/'+rows['photo_file_name'].replace('.gif','')+'_large.gif'
+			elif 'bmp' in rows['photo_file_name']:
+				image_link = 'https://assets1.mirraw.com/images/'+str(rows['id'])+'/'+rows['photo_file_name'].replace('.bmp','')+'_large.bmp'
+			elif 'png' in rows['photo_file_name']:
+				image_link = 'https://assets1.mirraw.com/images/'+str(rows['id'])+'/'+rows['photo_file_name'].replace('.png','')+'_large.png'
 
 			product1 = AdCreativeLinkDataChildAttachment()
-			product1[AdCreativeLinkDataChildAttachment.Field.link] = 'www.mirraw.com/d/'+str(row[0])
-			product1[AdCreativeLinkDataChildAttachment.Field.name] = str(row[1])
-			product1[AdCreativeLinkDataChildAttachment.Field.description] = row[2]
-			product1[AdCreativeLinkDataChildAttachment.Field.image_hash] = image_hash.get_image_hash(image_link,rows[1])
+			product1[AdCreativeLinkDataChildAttachment.Field.link] = 'www.mirraw.com/d/'+str(row['id'])
+			product1[AdCreativeLinkDataChildAttachment.Field.name] = str(row['title'])
+			product1[AdCreativeLinkDataChildAttachment.Field.description] = row['price']
+			product1[AdCreativeLinkDataChildAttachment.Field.image_hash] = image_hash.get_image_hash(image_link,rows['photo_file_name'])
 			simple_list.append(product1)
 
 	except psycopg2.DatabaseError, e:
@@ -46,8 +49,8 @@ def create_creative():
 		sys.exit(1)
 
 	finally:
-		if con:
-			con.close()
+		if conn:
+			conn.close()
 	caption=raw_input("Please enter a caption for the Ad.\n")
 	link = AdCreativeLinkData()
 	link[link.Field.link] = 'www.mirraw.com'
